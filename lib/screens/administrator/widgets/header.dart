@@ -1,32 +1,26 @@
-import 'package:approval_system/controllers/MenuAppController.dart';
 import 'package:approval_system/utils/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
 
-import '../../../../utils/constants.dart';
+import '../../../utils/constants.dart';
 
+// ignore: must_be_immutable
 class Header extends StatelessWidget {
   Header({
     Key? key,
-    required this.hasDashboard,
   }) : super(key: key);
-  bool hasDashboard;
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        if (!Responsive.isDesktop(context) && hasDashboard)
-          IconButton(
-            icon: Icon(Icons.menu),
-            onPressed: context.read<MenuAppController>().controlMenu,
-          ),
-        // if (!Responsive.isMobile(context))
+        Image.asset(
+          'assets/images/logo.png',
+          height: 30,
+        ),
+        SizedBox(width: defaultPadding),
         Text(
           "Dashboard",
           style: Theme.of(context).textTheme.titleLarge,
         ),
-        // if (!Responsive.isMobile(context))
         Spacer(flex: Responsive.isDesktop(context) ? 2 : 1),
         ProfileCard()
       ],

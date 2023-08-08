@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../../utils/constants.dart';
+import '../../../utils/constants.dart';
 
-class StorageInfoCard extends StatelessWidget {
-  const StorageInfoCard({
+class RequestInfoCard extends StatelessWidget {
+  const RequestInfoCard({
     Key? key,
     required this.title,
     required this.svgSrc,

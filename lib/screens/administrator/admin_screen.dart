@@ -1,23 +1,23 @@
 import 'package:approval_system/screens/administrator/widgets/header.dart';
-import 'package:approval_system/screens/requester/widgets/new_request_dialog.dart';
-import 'package:approval_system/screens/requester/widgets/request_history.dart';
+import 'package:approval_system/screens/administrator/widgets/new_workflow_dialog.dart';
+import 'package:approval_system/screens/administrator/widgets/rejected_requests.dart';
 import 'package:flutter/material.dart';
 
-import '../../../utils/constants.dart';
-import '../../../utils/responsive.dart';
+import '../../utils/constants.dart';
+import '../../utils/responsive.dart';
+import '../requester/widgets/request_history.dart';
+import 'widgets/approved_requests.dart';
 
-class RequesterScreen extends StatefulWidget {
-  const RequesterScreen({super.key});
-
+class AdminScreen extends StatefulWidget {
   @override
-  State<RequesterScreen> createState() => _RequesterScreenState();
+  State<AdminScreen> createState() => _AdminScreenState();
 }
 
-class _RequesterScreenState extends State<RequesterScreen> {
+class _AdminScreenState extends State<AdminScreen> {
   Future openDialog() async {
     await showDialog(
       context: this.context,
-      builder: (context) => NewRequestDialog(),
+      builder: (context) => NewWorkflowDialog(),
     );
     // setState(() {
     //   dataFuture = LeaveRequestAPI().getMyLeaveRequests();
@@ -30,11 +30,11 @@ class _RequesterScreenState extends State<RequesterScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           primary: false,
-          padding: EdgeInsets.all(defaultPadding),
+          padding: const EdgeInsets.all(defaultPadding),
           child: Column(
             children: [
               Header(),
-              SizedBox(height: defaultPadding),
+              const SizedBox(height: defaultPadding),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -46,7 +46,7 @@ class _RequesterScreenState extends State<RequesterScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "My Requests",
+                              "Total pending requests:  20",
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             ElevatedButton.icon(
@@ -60,22 +60,34 @@ class _RequesterScreenState extends State<RequesterScreen> {
                               onPressed: () {
                                 openDialog();
                               },
-                              icon: Icon(Icons.add),
-                              label: Text("Add New"),
+                              icon: const Icon(Icons.add),
+                              label: const Text("New Workflow"),
                             ),
                           ],
                         ),
-                        SizedBox(height: defaultPadding),
+                        const SizedBox(height: defaultPadding),
+                        if (!Responsive.isMobile(context))
+                          const Row(
+                            children: [
+                              Expanded(child: ApprovedRequests()),
+                              SizedBox(width: defaultPadding),
+                              Expanded(child: RejectedRequests()),
+                            ],
+                          ),
+                        if (Responsive.isMobile(context))
+                          const ApprovedRequests(),
+                        if (Responsive.isMobile(context))
+                          const SizedBox(height: defaultPadding),
+                        if (Responsive.isMobile(context))
+                          const RejectedRequests(),
+                        const SizedBox(height: defaultPadding),
                         RequestHistory(
                           requests: ['Leave', 'Overtime', 'Business Trip'],
                         ),
-                        if (Responsive.isMobile(context))
-                          SizedBox(height: defaultPadding),
                       ],
                     ),
                   ),
-                  if (!Responsive.isMobile(context))
-                    SizedBox(width: defaultPadding),
+                  const SizedBox(width: defaultPadding),
                 ],
               )
             ],

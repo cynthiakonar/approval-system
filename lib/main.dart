@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 import 'screens/approver/approver_screen.dart';
 import 'screens/requester/requester_screen.dart';
 import 'utils/constants.dart';
-import 'controllers/MenuAppController.dart';
-import 'screens/administrator/main/admin_screen.dart';
+import 'screens/administrator/admin_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,17 +23,10 @@ class MyApp extends StatelessWidget {
             .apply(bodyColor: Colors.white),
         canvasColor: secondaryColor,
       ),
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(
-            create: (context) => MenuAppController(),
-          ),
-        ],
-        child:
-            // RequesterScreen(),
-            // ApproverScreen(),
-            AdminScreen(),
-      ),
+      home:
+          // RequesterScreen(),
+          // ApproverScreen(),
+          AdminScreen(),
     );
   }
 }

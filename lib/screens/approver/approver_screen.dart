@@ -1,4 +1,4 @@
-import 'package:approval_system/screens/administrator/dashboard/components/header.dart';
+import 'package:approval_system/screens/administrator/widgets/header.dart';
 import 'package:approval_system/screens/approver/widgets/pending_requests.dart';
 import 'package:flutter/material.dart';
 
@@ -20,7 +20,7 @@ class _ApproverScreenState extends State<ApproverScreen> {
           padding: EdgeInsets.all(defaultPadding),
           child: Column(
             children: [
-              Header(hasDashboard: false),
+              Header(),
               SizedBox(height: defaultPadding),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,

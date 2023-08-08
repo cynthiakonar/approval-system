@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../utils/constants.dart';
+import '../../../utils/constants.dart';
 import 'chart.dart';
-import 'storage_info_card.dart';
+import 'request_info_card.dart';
 
-class ApprovedRequests extends StatelessWidget {
-  const ApprovedRequests({
+class RejectedRequests extends StatelessWidget {
+  const RejectedRequests({
     Key? key,
   }) : super(key: key);
 
@@ -20,37 +20,37 @@ class ApprovedRequests extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Approved Requests",
+          const Text(
+            "Rejected Requests",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: defaultPadding),
+          const SizedBox(height: defaultPadding),
           Chart(
-            color1: primaryColor,
-            color2: Color(0xFF26E5FF),
-            color3: Color(0xFFFFCF26),
+            color1: const Color(0xFF26E5FF),
+            color2: const Color(0xFFFFCF26),
+            color3: const Color(0xFFEE2727),
             totalRequests: 2305,
-            totalCompletedRequests: 1356,
-            todayRequests: 56,
-            weekRequests: 300,
-            monthRequests: 1000,
+            totalCompletedRequests: 43,
+            todayRequests: 3,
+            weekRequests: 10,
+            monthRequests: 30,
           ),
-          StorageInfoCard(
-            svgSrc: "assets/icons/Documents.svg",
-            title: "Approved today",
-            numOfRequests: 1328,
-          ),
-          StorageInfoCard(
+          const RequestInfoCard(
             svgSrc: "assets/icons/media.svg",
-            title: "Approved this week",
+            title: "Rejected today",
             numOfRequests: 1328,
           ),
-          StorageInfoCard(
+          const RequestInfoCard(
             svgSrc: "assets/icons/folder.svg",
-            title: "Approved this month",
+            title: "Rejected this week",
+            numOfRequests: 1328,
+          ),
+          const RequestInfoCard(
+            svgSrc: "assets/icons/unknown.svg",
+            title: "Rejected this month",
             numOfRequests: 1328,
           ),
         ],
