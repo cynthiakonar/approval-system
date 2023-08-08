@@ -1,27 +1,56 @@
 import 'package:approval_system/features/administrator/widgets/header.dart';
 import 'package:approval_system/features/requester/widgets/new_request_dialog.dart';
 import 'package:approval_system/features/requester/widgets/request_history.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../../utils/constants.dart';
 import '../../../utils/responsive.dart';
 
 class RequesterScreen extends StatefulWidget {
-  const RequesterScreen({super.key});
+  const RequesterScreen({super.key, required this.emailId});
+  final String emailId;
 
   @override
   State<RequesterScreen> createState() => _RequesterScreenState();
 }
 
 class _RequesterScreenState extends State<RequesterScreen> {
+  bool _isLoading = false;
+
+  List requests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _isLoading = true;
+    });
+    getMyRequests();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future getMyRequests() async {
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .where('userEmail', isEqualTo: widget.emailId)
+        .get()
+        .then((querySnapshot) => {
+              querySnapshot.docs.forEach((doc) {
+                requests.add(doc.data());
+              }),
+            });
+    setState(() {});
+  }
+
   Future openDialog() async {
     await showDialog(
       context: this.context,
-      builder: (context) => NewRequestDialog(),
+      builder: (context) => NewRequestDialog(emailId: widget.emailId),
     );
-    // setState(() {
-    //   dataFuture = LeaveRequestAPI().getMyLeaveRequests();
-    // });
   }
 
   @override
@@ -66,9 +95,14 @@ class _RequesterScreenState extends State<RequesterScreen> {
                           ],
                         ),
                         SizedBox(height: defaultPadding),
-                        RequestHistory(
-                          requests: ['Leave', 'Overtime', 'Business Trip'],
-                        ),
+                        _isLoading
+                            ? const Center(
+                                child: SpinKitFadingCircle(
+                                  color: Colors.white,
+                                  size: 50,
+                                ),
+                              )
+                            : RequestHistory(requests: requests),
                         if (Responsive.isMobile(context))
                           SizedBox(height: defaultPadding),
                       ],

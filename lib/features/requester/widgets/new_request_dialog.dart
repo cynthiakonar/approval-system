@@ -1,12 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
+import 'package:firebase_storage/firebase_storage.dart' as firabase_storage;
 import 'package:file_picker/file_picker.dart';
 import '../../../utils/constants.dart';
 
 class NewRequestDialog extends StatefulWidget {
-  NewRequestDialog({Key? key}) : super(key: key);
+  NewRequestDialog({Key? key, required this.emailId}) : super(key: key);
+  final String emailId;
 
   @override
   State<NewRequestDialog> createState() => _NewRequestDialogState();
@@ -16,14 +18,103 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
   bool _isLoading = false;
 
   final ItemEditingController = TextEditingController();
-  final reasonController = TextEditingController();
-  String? siteValue;
-  final _reasonFormKey = GlobalKey<FormState>();
-  List<String> siteItems = ["x", "y"];
-  String? imageFilePath;
-  List<Map<String, String?>> material_quantity = [];
+  final nameController = TextEditingController();
+  final descriptionController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  String? selectedWorkflow;
+  List workflows = [];
+  List<String> workflowNames = [];
+
+  String? selectedFile;
+  Uint8List? fileinBytes;
 
   bool _isFileAdded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _isLoading = true;
+    });
+    getAvailableWorkflows();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future selectFile(bool imageFrom) async {
+    FilePickerResult? fileResult =
+        await FilePicker.platform.pickFiles(allowMultiple: false);
+
+    if (fileResult != null) {
+      selectedFile = fileResult.files.first.name;
+      fileinBytes = fileResult.files.first.bytes;
+      _isFileAdded = true;
+      setState(() {});
+    }
+    print(selectedFile);
+  }
+
+  Future<String> uploadFile() async {
+    String imageUrl = '';
+    try {
+      firabase_storage.UploadTask uploadTask;
+
+      firabase_storage.Reference ref = firabase_storage.FirebaseStorage.instance
+          .ref()
+          .child('files/${selectedFile!}');
+
+      final metadata =
+          firabase_storage.SettableMetadata(contentType: 'image/jpeg');
+
+      //uploadTask = ref.putFile(File(file.path));
+      uploadTask = ref.putData(fileinBytes!, metadata);
+
+      await uploadTask.whenComplete(() => null);
+      imageUrl = await ref.getDownloadURL();
+    } catch (e) {
+      print(e);
+    }
+    return imageUrl;
+  }
+
+  Future getAvailableWorkflows() async {
+    await FirebaseFirestore.instance
+        .collection('workflows')
+        .where('status', isEqualTo: 'pending')
+        .get()
+        .then((querySnapshot) => {
+              querySnapshot.docs.forEach((doc) {
+                workflows.add(doc.data());
+                workflowNames.add(doc['name']);
+              }),
+            });
+    setState(() {});
+    print(workflows);
+  }
+
+  Future addNewRequest() async {
+    setState(() {
+      _isLoading = true;
+    });
+    String fileUrl = '';
+    if (_isFileAdded) {
+      fileUrl = await uploadFile();
+    }
+    await FirebaseFirestore.instance.collection('requests').add({
+      'name': nameController.text,
+      'description': descriptionController.text,
+      'workflowType': selectedWorkflow,
+      'attachmentUrl': fileUrl,
+      'status': 'pending',
+      'dateTime': DateTime.now(),
+      'userEmail': widget.emailId,
+    });
+    setState(() {
+      _isLoading = false;
+    });
+    Navigator.pop(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +136,11 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
             bottom: 0,
             child: IconButton(
               padding: EdgeInsets.zero,
-              constraints: BoxConstraints(),
+              constraints: const BoxConstraints(),
               onPressed: () => Navigator.pop(context),
-              icon: Icon(Icons.close),
+              icon: const Icon(Icons.close),
               iconSize: 18,
-              color: Color(0xFFC8C8C8),
+              color: const Color(0xFFC8C8C8),
             ),
           ),
         ],
@@ -60,7 +151,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                 child: Column(
                   children: [
                     SpinKitFadingCircle(
-                      color: Color(0xFFD7EB8B),
+                      color: Colors.white,
                       size: 50,
                     ),
                     SizedBox(height: 10),
@@ -79,7 +170,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Form(
-                    key: _reasonFormKey,
+                    key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -94,7 +185,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                         TextFormField(
                           onChanged: (value) {
                             setState(() {
-                              reasonController.text = value;
+                              nameController.text = value;
                             });
                           },
                           validator: (value) {
@@ -107,7 +198,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                           minLines: 1,
                           maxLines: 5,
                           textCapitalization: TextCapitalization.sentences,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 14,
                           ),
@@ -117,7 +208,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                 5,
                               ),
                             ),
-                            focusedBorder: OutlineInputBorder(
+                            focusedBorder: const OutlineInputBorder(
                               borderSide: BorderSide(
                                 color: Colors.white70,
                               ),
@@ -126,12 +217,13 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                               borderRadius: BorderRadius.circular(
                                 5,
                               ),
-                              borderSide: BorderSide(
+                              borderSide: const BorderSide(
                                 color: Colors.white70,
                               ),
                             ),
                             isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(10, 20, 10, 0),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -145,7 +237,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
                           itemHeight: null,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             // isDense: true,
                             isCollapsed: true,
                             contentPadding: EdgeInsets.fromLTRB(10, 10, 10, 10),
@@ -166,17 +258,18 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                             ),
                           ),
                           autofocus: false,
-                          value: siteValue,
+                          value: selectedWorkflow,
                           isExpanded: true,
                           iconSize: 24,
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.keyboard_arrow_down,
                             color: Colors.white70,
                           ),
-                          items: siteItems.map(buildMenuItem).toList(),
+                          items: workflowNames.map(buildMenuItem).toList(),
                           onChanged: (Evalue) => setState(
                             () {
-                              this.siteValue = Evalue;
+                              this.selectedWorkflow = Evalue;
+
                               ItemEditingController.text = Evalue!;
                             },
                           ),
@@ -202,7 +295,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                         TextFormField(
                           onChanged: (value) {
                             setState(() {
-                              reasonController.text = value;
+                              descriptionController.text = value;
                             });
                           },
                           validator: (value) {
@@ -215,7 +308,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                           minLines: 1,
                           maxLines: 5,
                           textCapitalization: TextCapitalization.sentences,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.w400,
                             fontSize: 14,
                           ),
@@ -225,7 +318,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                 5,
                               ),
                             ),
-                            focusedBorder: OutlineInputBorder(
+                            focusedBorder: const OutlineInputBorder(
                               borderSide: BorderSide(
                                 color: Colors.white70,
                               ),
@@ -234,15 +327,16 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                               borderRadius: BorderRadius.circular(
                                 5,
                               ),
-                              borderSide: BorderSide(
+                              borderSide: const BorderSide(
                                 color: Colors.white70,
                               ),
                             ),
                             isDense: true,
-                            contentPadding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+                            contentPadding:
+                                const EdgeInsets.fromLTRB(10, 20, 10, 0),
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         const Text(
                           "Add Attachment (if any) :",
                           style: TextStyle(
@@ -255,14 +349,14 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                             ? GestureDetector(
                                 onTap: () => setState(() {
                                   _isFileAdded = false;
-                                  imageFilePath = null;
+                                  selectedFile = null;
                                 }),
                                 child: Container(
-                                  padding: EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(8.0),
                                   decoration: BoxDecoration(
-                                    color: Colors.white70,
+                                    color: Colors.blue,
                                     borderRadius: BorderRadius.circular(6.0),
-                                    boxShadow: [
+                                    boxShadow: const [
                                       BoxShadow(
                                         color: Colors.black12,
                                         blurRadius: 2.0,
@@ -271,75 +365,49 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                       ),
                                     ],
                                   ),
-                                  child: Row(
+                                  child: const Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Text(
                                         'File added',
-                                        // style: TT.f13w600
-                                        //     .copyWith(color: ColorTheme.iconColor),
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                       Icon(
                                         Icons.close,
-                                        size: 20,
-                                        // color: ColorTheme.iconColor,
+                                        size: 16,
                                       )
                                     ],
                                   ),
                                 ),
                               )
                             : GestureDetector(
-                                onTap: material_quantity.isNotEmpty
-                                    ? null
-                                    : () async {
-                                        try {
-                                          FilePickerResult? result =
-                                              await FilePicker.platform
-                                                  .pickFiles(
-                                                      type: FileType.custom,
-                                                      allowedExtensions: [
-                                                'pdf',
-                                                'jpg',
-                                                'png',
-                                                'webp'
-                                              ]);
-                                          if (result != null) {
-                                            setState(() {
-                                              _isFileAdded = true;
-                                              imageFilePath =
-                                                  result.files.first.path;
-                                            });
-
-                                            print('File path: ' +
-                                                result.files.single.path!);
-                                          } else {
-                                            print('User cancelled file pick');
-                                          }
-                                        } on PlatformException {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'File access permission denied'),
-                                              duration: Duration(seconds: 2),
-                                            ),
-                                          );
-                                        }
-                                      },
+                                onTap: () async {
+                                  try {
+                                    selectFile(true);
+                                  } on PlatformException {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                            'File access permission denied'),
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                },
                                 child: Container(
                                   width: double.infinity,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.white70,
-                                      width: 1,
-                                    ),
-                                    borderRadius: BorderRadius.circular(7),
-                                    color: material_quantity.isEmpty
-                                        ? Colors.transparent
-                                        : Colors.white70,
-                                  ),
-                                  child: Center(
+                                      border: Border.all(
+                                        color: Colors.white70,
+                                        width: 1,
+                                      ),
+                                      borderRadius: BorderRadius.circular(7),
+                                      color: Colors.transparent),
+                                  child: const Center(
                                     child: Text(
                                       "Choose file",
                                       style: TextStyle(
@@ -353,19 +421,24 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                   ),
                                 ),
                               ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
-                  SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
                   // Button
                   Row(
                     children: [
                       Expanded(
                         child: ElevatedButton(
-                          onPressed:
-                              (reasonController.text.isEmpty) ? null : () {},
+                          onPressed: (nameController.text.isEmpty ||
+                                  descriptionController.text.isEmpty ||
+                                  selectedWorkflow == null)
+                              ? null
+                              : () {
+                                  addNewRequest();
+                                },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             elevation: 0,
@@ -395,7 +468,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
       value: item,
       child: Text(
         item,
-        style: TextStyle(
+        style: const TextStyle(
           fontWeight: FontWeight.w400,
           fontSize: 14,
         ),

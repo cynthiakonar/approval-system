@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
+import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../utils/constants.dart';
 
 class RequestHistory extends StatelessWidget {
@@ -29,7 +30,6 @@ class RequestHistory extends StatelessWidget {
             width: double.infinity,
             child: DataTable(
               columnSpacing: defaultPadding,
-              // minWidth: 600,
               columns: const [
                 DataColumn(
                   label: Text("Request Name"),
@@ -62,23 +62,47 @@ DataRow recentFileDataRow(request) {
       DataCell(
         Row(
           children: [
-            SvgPicture.asset(
-              "assets/icons/xd_file.svg",
-              height: 30,
-              width: 30,
-            ),
+            request["attachmentUrl"].isEmpty
+                ? SvgPicture.asset(
+                    "assets/icons/xd_file.svg",
+                    height: 30,
+                    width: 30,
+                  )
+                : CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    imageUrl: request["attachmentUrl"],
+                    imageBuilder: (context, imageProvider) => Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                            image: imageProvider, fit: BoxFit.cover),
+                        gradient: const LinearGradient(colors: [
+                          Colors.transparent,
+                          Colors.black,
+                          Colors.black,
+                          Colors.black,
+                        ]),
+                      ),
+                    ),
+                    placeholder: (context, url) =>
+                        const Center(child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) =>
+                        Center(child: const Icon(Icons.broken_image_outlined)),
+                  ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: defaultPadding),
-                child: Text(request),
+                child: Text(request["name"]),
               ),
             ),
           ],
         ),
       ),
-      DataCell(Text("Leave Request")),
-      DataCell(Text("01/03/2023 - 10:00PM")),
-      DataCell(Text("Approved")),
+      DataCell(Text(request["workflowType"])),
+      DataCell(Text(DateFormat('MM/dd/yyyy, hh:mm a')
+          .format(request["dateTime"].toDate())
+          .toString())),
+      DataCell(Text(request["status"])),
     ],
   );
 }

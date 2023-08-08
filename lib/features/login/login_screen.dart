@@ -167,7 +167,8 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => RequesterScreen(),
+            builder: (context) =>
+                RequesterScreen(emailId: snapshot.docs[0].data()['email']),
           ),
         );
       } else {
