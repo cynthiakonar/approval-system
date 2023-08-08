@@ -81,11 +81,11 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
   Future getAvailableWorkflows() async {
     await FirebaseFirestore.instance
         .collection('workflows')
-        .where('status', isEqualTo: 'pending')
+        .where('status', isEqualTo: 'Pending')
         .get()
         .then((querySnapshot) => {
               querySnapshot.docs.forEach((doc) {
-                workflows.add(doc.data());
+                workflows.add(doc.id);
                 workflowNames.add(doc['name']);
               }),
             });
@@ -106,10 +106,15 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
       'description': descriptionController.text,
       'workflowType': selectedWorkflow,
       'attachmentUrl': fileUrl,
-      'status': 'pending',
+      'status': 'Pending',
       'dateTime': DateTime.now(),
       'userEmail': widget.emailId,
     });
+    FirebaseFirestore.instance
+        .collection('workflows')
+        .doc(workflows[workflowNames.indexOf(selectedWorkflow!)])
+        .update({'status': 'In Progress'});
+
     setState(() {
       _isLoading = false;
     });

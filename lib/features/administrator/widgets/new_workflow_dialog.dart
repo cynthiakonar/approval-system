@@ -64,11 +64,10 @@ class _NewWorkflowDialogState extends State<NewWorkflowDialog> {
           'name': nameController.text,
           'approvers': selectedApprovers,
           'approvalTypes': selectedApprovalTypes,
-          'status': 'pending',
+          'status': 'Pending',
         })
         .then((value) => print("Workflow Added"))
         .catchError((error) => print("Failed to add workflow: $error"));
-
     setState(() {
       isLoading = false;
       nameController.clear();

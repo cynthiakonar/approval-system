@@ -1,7 +1,9 @@
 import 'package:approval_system/features/administrator/widgets/header.dart';
 import 'package:approval_system/features/administrator/widgets/new_workflow_dialog.dart';
 import 'package:approval_system/features/administrator/widgets/rejected_requests.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../utils/constants.dart';
 import '../../utils/responsive.dart';
@@ -14,14 +16,40 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
+  bool _isLoading = false;
+
+  List requests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      _isLoading = true;
+    });
+    getAllRequests();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future getAllRequests() async {
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .where('status', whereIn: ['Approved', 'Rejected'])
+        .get()
+        .then((querySnapshot) => {
+              querySnapshot.docs.forEach((doc) {
+                requests.add(doc.data());
+              }),
+            });
+    setState(() {});
+  }
+
   Future openDialog() async {
     await showDialog(
       context: this.context,
       builder: (context) => NewWorkflowDialog(),
     );
-    // setState(() {
-    //   dataFuture = LeaveRequestAPI().getMyLeaveRequests();
-    // });
   }
 
   @override
@@ -81,9 +109,14 @@ class _AdminScreenState extends State<AdminScreen> {
                         if (Responsive.isMobile(context))
                           const RejectedRequests(),
                         const SizedBox(height: defaultPadding),
-                        RequestHistory(
-                          requests: ['Leave', 'Overtime', 'Business Trip'],
-                        ),
+                        _isLoading
+                            ? const Center(
+                                child: SpinKitFadingCircle(
+                                  color: Colors.white,
+                                  size: 50,
+                                ),
+                              )
+                            : RequestHistory(requests: requests),
                       ],
                     ),
                   ),
