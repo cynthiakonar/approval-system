@@ -31,9 +31,10 @@ class MyApp extends StatelessWidget {
             create: (context) => MenuAppController(),
           ),
         ],
-        child: RequesterScreen(),
-        // ApproverScreen(),
-        // AdminScreen(),
+        child:
+            // RequesterScreen(),
+            // ApproverScreen(),
+            AdminScreen(),
       ),
     );
   }

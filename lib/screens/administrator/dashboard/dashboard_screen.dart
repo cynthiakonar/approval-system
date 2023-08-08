@@ -1,11 +1,10 @@
 import 'package:approval_system/screens/administrator/dashboard/components/header.dart';
+import 'package:approval_system/screens/administrator/dashboard/components/rejected_requests.dart';
 import 'package:flutter/material.dart';
 
 import '../../../utils/constants.dart';
 import '../../../utils/responsive.dart';
-import 'components/my_fields.dart';
-import 'components/recent_files.dart';
-import 'components/storage_details.dart';
+import 'components/approved_requests.dart';
 
 class DashboardScreen extends StatelessWidget {
   @override
@@ -25,23 +24,44 @@ class DashboardScreen extends StatelessWidget {
                   flex: 5,
                   child: Column(
                     children: [
-                      MyFiles(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Total pending requests:  20",
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          ElevatedButton.icon(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: defaultPadding * 1.5,
+                                vertical: defaultPadding /
+                                    (Responsive.isMobile(context) ? 2 : 1),
+                              ),
+                            ),
+                            onPressed: () {},
+                            icon: Icon(Icons.add),
+                            label: Text("New Workflow"),
+                          ),
+                        ],
+                      ),
                       SizedBox(height: defaultPadding),
-                      RecentFiles(),
+                      if (!Responsive.isMobile(context))
+                        Row(
+                          children: [
+                            Expanded(child: ApprovedRequests()),
+                            SizedBox(width: defaultPadding),
+                            Expanded(child: RejectedRequests()),
+                          ],
+                        ),
+                      if (Responsive.isMobile(context)) ApprovedRequests(),
                       if (Responsive.isMobile(context))
                         SizedBox(height: defaultPadding),
-                      if (Responsive.isMobile(context)) StorageDetails(),
+                      if (Responsive.isMobile(context)) RejectedRequests(),
                     ],
                   ),
                 ),
-                if (!Responsive.isMobile(context))
-                  SizedBox(width: defaultPadding),
-                // On Mobile means if the screen is less than 850 we don't want to show it
-                if (!Responsive.isMobile(context))
-                  Expanded(
-                    flex: 2,
-                    child: StorageDetails(),
-                  ),
+                SizedBox(width: defaultPadding),
               ],
             )
           ],
