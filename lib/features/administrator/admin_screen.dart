@@ -1,22 +1,34 @@
 import 'package:approval_system/features/administrator/widgets/header.dart';
 import 'package:approval_system/features/administrator/widgets/new_workflow_dialog.dart';
 import 'package:approval_system/features/administrator/widgets/rejected_requests.dart';
+import 'package:approval_system/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
 import '../../utils/constants.dart';
 import '../../utils/responsive.dart';
 import '../requester/widgets/request_history.dart';
 import 'widgets/approved_requests.dart';
 
 class AdminScreen extends StatefulWidget {
+  const AdminScreen({super.key});
+
   @override
   State<AdminScreen> createState() => _AdminScreenState();
 }
 
 class _AdminScreenState extends State<AdminScreen> {
   bool _isLoading = false;
+
+  int totalPendingRequests = 0;
+  int approvedToday = 0;
+  int approvedThisWeek = 0;
+  int approvedThisMonth = 0;
+  int rejectedToday = 0;
+  int rejectedThisWeek = 0;
+  int rejectedThisMonth = 0;
+
+  int totalRequests = 0;
 
   List requests = [];
 
@@ -33,6 +45,15 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future getAllRequests() async {
+    totalPendingRequests = await FirebaseFirestore.instance
+        .collection('requests')
+        .where('status', isEqualTo: 'Pending')
+        .get()
+        .then((querySnapshot) => querySnapshot.size);
+    totalRequests = await FirebaseFirestore.instance
+        .collection('requests')
+        .get()
+        .then((querySnapshot) => querySnapshot.size);
     await FirebaseFirestore.instance
         .collection('requests')
         .where('status', whereIn: ['Approved', 'Rejected'])
@@ -40,8 +61,32 @@ class _AdminScreenState extends State<AdminScreen> {
         .then((querySnapshot) => {
               querySnapshot.docs.forEach((doc) {
                 requests.add(doc.data());
+
+                // seperate analytics
+                DateTime date = doc.data()["dateTime"].toDate();
+                int diff = calculateDifference(date);
+                if (diff == 0) {
+                  if (doc.data()["status"] == "Approved") {
+                    approvedToday++;
+                  } else {
+                    rejectedToday++;
+                  }
+                } else if (diff > -7 && diff < 0) {
+                  if (doc.data()["status"] == "Approved") {
+                    approvedThisWeek++;
+                  } else {
+                    rejectedThisWeek++;
+                  }
+                } else if (diff > -30 && diff < -7) {
+                  if (doc.data()["status"] == "Approved") {
+                    approvedThisMonth++;
+                  } else {
+                    rejectedThisMonth++;
+                  }
+                }
               }),
             });
+
     setState(() {});
   }
 
@@ -74,7 +119,7 @@ class _AdminScreenState extends State<AdminScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Total pending requests:  20",
+                              "Total pending requests:  $totalPendingRequests",
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             ElevatedButton.icon(
@@ -95,19 +140,41 @@ class _AdminScreenState extends State<AdminScreen> {
                         ),
                         const SizedBox(height: defaultPadding),
                         if (!Responsive.isMobile(context))
-                          const Row(
+                          Row(
                             children: [
-                              Expanded(child: ApprovedRequests()),
+                              Expanded(
+                                  child: ApprovedRequests(
+                                totalRequests: totalRequests,
+                                approvedToday: approvedToday,
+                                approvedThisWeek: approvedThisWeek,
+                                approvedThisMonth: approvedThisMonth,
+                              )),
                               SizedBox(width: defaultPadding),
-                              Expanded(child: RejectedRequests()),
+                              Expanded(
+                                  child: RejectedRequests(
+                                totalRequests: totalRequests,
+                                rejectedToday: rejectedToday,
+                                rejectedThisWeek: rejectedThisWeek,
+                                rejectedThisMonth: rejectedThisMonth,
+                              )),
                             ],
                           ),
                         if (Responsive.isMobile(context))
-                          const ApprovedRequests(),
+                          ApprovedRequests(
+                            totalRequests: totalRequests,
+                            approvedToday: approvedToday,
+                            approvedThisWeek: approvedThisWeek,
+                            approvedThisMonth: approvedThisMonth,
+                          ),
                         if (Responsive.isMobile(context))
                           const SizedBox(height: defaultPadding),
                         if (Responsive.isMobile(context))
-                          const RejectedRequests(),
+                          RejectedRequests(
+                            totalRequests: totalRequests,
+                            rejectedToday: rejectedToday,
+                            rejectedThisWeek: rejectedThisWeek,
+                            rejectedThisMonth: rejectedThisMonth,
+                          ),
                         const SizedBox(height: defaultPadding),
                         _isLoading
                             ? const Center(

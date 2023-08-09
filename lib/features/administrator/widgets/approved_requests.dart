@@ -7,7 +7,15 @@ import 'request_info_card.dart';
 class ApprovedRequests extends StatelessWidget {
   const ApprovedRequests({
     Key? key,
+    required this.totalRequests,
+    required this.approvedToday,
+    required this.approvedThisWeek,
+    required this.approvedThisMonth,
   }) : super(key: key);
+  final int totalRequests;
+  final int approvedToday;
+  final int approvedThisWeek;
+  final int approvedThisMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -32,26 +40,27 @@ class ApprovedRequests extends StatelessWidget {
             color1: primaryColor,
             color2: const Color(0xFF26E5FF),
             color3: const Color(0xFFFFCF26),
-            totalRequests: 2305,
-            totalCompletedRequests: 1356,
-            todayRequests: 56,
-            weekRequests: 300,
-            monthRequests: 1000,
+            totalRequests: totalRequests,
+            totalCompletedRequests:
+                approvedToday + approvedThisWeek + approvedThisMonth,
+            todayRequests: approvedToday,
+            weekRequests: approvedThisWeek,
+            monthRequests: approvedThisMonth,
           ),
-          const RequestInfoCard(
+          RequestInfoCard(
             svgSrc: "assets/icons/Documents.svg",
             title: "Approved today",
-            numOfRequests: 1328,
+            numOfRequests: approvedToday,
           ),
-          const RequestInfoCard(
+          RequestInfoCard(
             svgSrc: "assets/icons/media.svg",
             title: "Approved this week",
-            numOfRequests: 1328,
+            numOfRequests: approvedThisWeek,
           ),
-          const RequestInfoCard(
+          RequestInfoCard(
             svgSrc: "assets/icons/folder.svg",
             title: "Approved this month",
-            numOfRequests: 1328,
+            numOfRequests: approvedThisMonth,
           ),
         ],
       ),

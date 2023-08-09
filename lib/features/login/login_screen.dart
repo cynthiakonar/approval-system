@@ -14,7 +14,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _formkey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -183,7 +182,7 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final FirebaseAuth _auth = FirebaseAuth.instance;
       await _auth.signInWithEmailAndPassword(
-        email: "requester@gmail.com", // email,
+        email: "admin@gmail.com", // email,
         password: "123456", //password,
       );
 
@@ -205,24 +204,6 @@ class _LoginScreenState extends State<LoginScreen> {
         default:
           print(ex.toString());
           return null;
-      }
-    }
-  }
-
-  void signIn() async {
-    if (_formkey.currentState!.validate()) {
-      try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text,
-          password: passwordController.text,
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          print('No user found for that email.');
-        } else if (e.code == 'wrong-password') {
-          print('Wrong password provided for that user.');
-        }
       }
     }
   }

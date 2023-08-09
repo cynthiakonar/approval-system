@@ -7,7 +7,15 @@ import 'request_info_card.dart';
 class RejectedRequests extends StatelessWidget {
   const RejectedRequests({
     Key? key,
+    required this.totalRequests,
+    required this.rejectedToday,
+    required this.rejectedThisWeek,
+    required this.rejectedThisMonth,
   }) : super(key: key);
+  final int totalRequests;
+  final int rejectedToday;
+  final int rejectedThisWeek;
+  final int rejectedThisMonth;
 
   @override
   Widget build(BuildContext context) {
@@ -32,26 +40,27 @@ class RejectedRequests extends StatelessWidget {
             color1: const Color(0xFF26E5FF),
             color2: const Color(0xFFFFCF26),
             color3: const Color(0xFFEE2727),
-            totalRequests: 2305,
-            totalCompletedRequests: 43,
-            todayRequests: 3,
-            weekRequests: 10,
-            monthRequests: 30,
+            totalRequests: totalRequests,
+            totalCompletedRequests:
+                rejectedToday + rejectedThisWeek + rejectedThisMonth,
+            todayRequests: rejectedToday,
+            weekRequests: rejectedThisWeek,
+            monthRequests: rejectedThisMonth,
           ),
-          const RequestInfoCard(
+          RequestInfoCard(
             svgSrc: "assets/icons/media.svg",
             title: "Rejected today",
-            numOfRequests: 1328,
+            numOfRequests: rejectedToday,
           ),
-          const RequestInfoCard(
+          RequestInfoCard(
             svgSrc: "assets/icons/folder.svg",
             title: "Rejected this week",
-            numOfRequests: 1328,
+            numOfRequests: rejectedThisWeek,
           ),
-          const RequestInfoCard(
+          RequestInfoCard(
             svgSrc: "assets/icons/unknown.svg",
             title: "Rejected this month",
-            numOfRequests: 1328,
+            numOfRequests: rejectedThisMonth,
           ),
         ],
       ),

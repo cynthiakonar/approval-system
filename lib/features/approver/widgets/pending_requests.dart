@@ -34,12 +34,20 @@ class _PendingRequestsState extends State<PendingRequests> {
       await FirebaseFirestore.instance
           .collection('requests')
           .doc(request['id'].toString().trim())
-          .update({'status': decision, 'comment': commentController.text});
+          .update({
+        'status': decision,
+        'comment': commentController.text,
+        'dateTime': DateTime.now()
+      });
     } else {
       await FirebaseFirestore.instance
           .collection('requests')
           .doc(request['id'].toString().trim())
-          .update({'status': decision, 'comment': commentController.text});
+          .update({
+        'status': decision,
+        'comment': commentController.text,
+        'dateTime': DateTime.now()
+      });
     }
     commentController.clear();
     setState(() {
