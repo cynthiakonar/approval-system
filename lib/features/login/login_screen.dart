@@ -182,8 +182,8 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final FirebaseAuth _auth = FirebaseAuth.instance;
       await _auth.signInWithEmailAndPassword(
-        email: "admin@gmail.com", // email,
-        password: "123456", //password,
+        email: email,
+        password: password,
       );
 
       route();

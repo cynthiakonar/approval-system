@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:approval_system/features/administrator/widgets/header.dart';
 import 'package:approval_system/features/administrator/widgets/new_workflow_dialog.dart';
 import 'package:approval_system/features/administrator/widgets/rejected_requests.dart';
 import 'package:approval_system/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../../utils/constants.dart';
 import '../../utils/responsive.dart';
 import '../requester/widgets/request_history.dart';
@@ -18,8 +19,6 @@ class AdminScreen extends StatefulWidget {
 }
 
 class _AdminScreenState extends State<AdminScreen> {
-  bool _isLoading = false;
-
   int totalPendingRequests = 0;
   int approvedToday = 0;
   int approvedThisWeek = 0;
@@ -31,20 +30,29 @@ class _AdminScreenState extends State<AdminScreen> {
   int totalRequests = 0;
 
   List requests = [];
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _isLoading = true;
-    });
+
     getAllRequests();
-    setState(() {
-      _isLoading = false;
-    });
+
+    timer = Timer.periodic(
+      Duration(seconds: 2),
+      (Timer t) => getAllRequests(),
+    );
   }
 
   Future getAllRequests() async {
+    requests.clear();
+    approvedToday = 0;
+    approvedThisWeek = 0;
+    approvedThisMonth = 0;
+    rejectedToday = 0;
+    rejectedThisWeek = 0;
+    rejectedThisMonth = 0;
+
     totalPendingRequests = await FirebaseFirestore.instance
         .collection('requests')
         .where('status', isEqualTo: 'Pending')
@@ -176,14 +184,7 @@ class _AdminScreenState extends State<AdminScreen> {
                             rejectedThisMonth: rejectedThisMonth,
                           ),
                         const SizedBox(height: defaultPadding),
-                        _isLoading
-                            ? const Center(
-                                child: SpinKitFadingCircle(
-                                  color: Colors.white,
-                                  size: 50,
-                                ),
-                              )
-                            : RequestHistory(requests: requests),
+                        RequestHistory(requests: requests),
                       ],
                     ),
                   ),

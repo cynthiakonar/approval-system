@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:approval_system/features/administrator/widgets/header.dart';
 import 'package:approval_system/features/requester/widgets/new_request_dialog.dart';
 import 'package:approval_system/features/requester/widgets/request_history.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../../utils/constants.dart';
 import '../../../utils/responsive.dart';
@@ -17,23 +18,24 @@ class RequesterScreen extends StatefulWidget {
 }
 
 class _RequesterScreenState extends State<RequesterScreen> {
-  bool _isLoading = false;
-
   List requests = [];
+
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _isLoading = true;
-    });
+
     getMyRequests();
-    setState(() {
-      _isLoading = false;
-    });
+
+    timer = Timer.periodic(
+      Duration(seconds: 2),
+      (Timer t) => getMyRequests(),
+    );
   }
 
   Future getMyRequests() async {
+    requests.clear();
     await FirebaseFirestore.instance
         .collection('requests')
         .where('userEmail', isEqualTo: widget.emailId)
@@ -95,14 +97,7 @@ class _RequesterScreenState extends State<RequesterScreen> {
                           ],
                         ),
                         SizedBox(height: defaultPadding),
-                        _isLoading
-                            ? const Center(
-                                child: SpinKitFadingCircle(
-                                  color: Colors.white,
-                                  size: 50,
-                                ),
-                              )
-                            : RequestHistory(requests: requests),
+                        RequestHistory(requests: requests),
                         if (Responsive.isMobile(context))
                           SizedBox(height: defaultPadding),
                       ],

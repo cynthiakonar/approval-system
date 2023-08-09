@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:approval_system/utils/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -29,16 +31,14 @@ class _NewWorkflowDialogState extends State<NewWorkflowDialog> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      isLoading = true;
-    });
+
     getApprovers();
-    setState(() {
-      isLoading = false;
-    });
   }
 
   Future getApprovers() async {
+    setState(() {
+      isLoading = true;
+    });
     await FirebaseFirestore.instance
         .collection('users')
         .where('role', isEqualTo: 'Approver')
@@ -49,9 +49,11 @@ class _NewWorkflowDialogState extends State<NewWorkflowDialog> {
             });
     setState(() {});
     print(approvers);
+    setState(() {
+      isLoading = false;
+    });
   }
 
-  postDetailsToFirestore(String email, String rool) async {}
   Future createWorkflow() async {
     setState(() {
       isLoading = true;
@@ -66,6 +68,7 @@ class _NewWorkflowDialogState extends State<NewWorkflowDialog> {
     });
 
     documentReference.update({'id': documentReference.id});
+
     setState(() {
       isLoading = false;
       nameController.clear();

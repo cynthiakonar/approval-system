@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:approval_system/features/administrator/widgets/header.dart';
 import 'package:approval_system/features/approver/widgets/pending_requests.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import '../../../utils/constants.dart';
 import '../../../utils/responsive.dart';
@@ -16,23 +17,22 @@ class ApproverScreen extends StatefulWidget {
 }
 
 class _ApproverScreenState extends State<ApproverScreen> {
-  bool _isLoading = false;
+  Timer? timer;
 
   List requests = [];
 
   @override
   void initState() {
     super.initState();
-    setState(() {
-      _isLoading = true;
-    });
-    getMyRequests();
-    setState(() {
-      _isLoading = false;
-    });
+
+    timer = Timer.periodic(
+      Duration(seconds: 2),
+      (Timer t) => getMyRequests(),
+    );
   }
 
   Future getMyRequests() async {
+    requests.clear();
     await FirebaseFirestore.instance
         .collection('requests')
         .where('status', isEqualTo: 'Pending')
@@ -74,14 +74,7 @@ class _ApproverScreenState extends State<ApproverScreen> {
                           ],
                         ),
                         SizedBox(height: defaultPadding),
-                        _isLoading
-                            ? const Center(
-                                child: SpinKitFadingCircle(
-                                  color: Colors.white,
-                                  size: 50,
-                                ),
-                              )
-                            : PendingRequests(requests: requests),
+                        PendingRequests(requests: requests),
                         if (Responsive.isMobile(context))
                           SizedBox(height: defaultPadding),
                       ],

@@ -97,6 +97,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
     setState(() {
       _isLoading = true;
     });
+
     String fileUrl = '';
     if (_isFileAdded) {
       fileUrl = await uploadFile();
