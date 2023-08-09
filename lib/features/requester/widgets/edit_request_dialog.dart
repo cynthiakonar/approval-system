@@ -6,15 +6,15 @@ import 'package:firebase_storage/firebase_storage.dart' as firabase_storage;
 import 'package:file_picker/file_picker.dart';
 import '../../../utils/constants.dart';
 
-class NewRequestDialog extends StatefulWidget {
-  NewRequestDialog({Key? key, required this.emailId}) : super(key: key);
-  final String emailId;
+class EditRequestDialog extends StatefulWidget {
+  const EditRequestDialog({Key? key, required this.request}) : super(key: key);
+  final dynamic request;
 
   @override
-  State<NewRequestDialog> createState() => _NewRequestDialogState();
+  State<EditRequestDialog> createState() => _EditRequestDialogState();
 }
 
-class _NewRequestDialogState extends State<NewRequestDialog> {
+class _EditRequestDialogState extends State<EditRequestDialog> {
   bool _isLoading = false;
 
   final ItemEditingController = TextEditingController();
@@ -35,7 +35,13 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
     super.initState();
     setState(() {
       _isLoading = true;
+      nameController.text = widget.request['name'];
+      descriptionController.text = widget.request['description'];
+      selectedWorkflow = widget.request['workflowType'];
+
+      print(nameController.text);
     });
+
     getAvailableWorkflows();
     setState(() {
       _isLoading = false;
@@ -93,7 +99,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
     print(workflows);
   }
 
-  Future addNewRequest() async {
+  Future editRequest(context) async {
     setState(() {
       _isLoading = true;
     });
@@ -101,25 +107,21 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
     if (_isFileAdded) {
       fileUrl = await uploadFile();
     }
-    DocumentReference documentReference =
-        await FirebaseFirestore.instance.collection('requests').add({
+
+    await FirebaseFirestore.instance
+        .collection('requests')
+        .doc(widget.request['id'].toString().trim())
+        .update({
       'name': nameController.text,
       'description': descriptionController.text,
       'workflowType': selectedWorkflow,
       'attachmentUrl': fileUrl,
       'status': 'Pending',
       'dateTime': DateTime.now(),
-      'userEmail': widget.emailId,
       'workflowApprovers': workflows[workflowNames.indexOf(selectedWorkflow!)]
           ['approvers'],
       'workflowId': workflows[workflowNames.indexOf(selectedWorkflow!)]['id'],
     });
-    documentReference.update({'id': documentReference.id});
-
-    FirebaseFirestore.instance
-        .collection('workflows')
-        .doc(workflows[workflowNames.indexOf(selectedWorkflow!)]['id'])
-        .update({'status': 'In Progress'});
 
     setState(() {
       _isLoading = false;
@@ -194,13 +196,10 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
-                          onChanged: (value) {
-                            setState(() {
-                              nameController.text = value;
-                            });
-                          },
+                          controller: nameController,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if ((value == null || value.isEmpty) &&
+                                nameController.text.isEmpty) {
                               return "*Required";
                             }
                             return null;
@@ -304,13 +303,10 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                         ),
                         const SizedBox(height: 8),
                         TextFormField(
-                          onChanged: (value) {
-                            setState(() {
-                              descriptionController.text = value;
-                            });
-                          },
+                          controller: descriptionController,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if ((value == null || value.isEmpty) &&
+                                descriptionController.text.isEmpty) {
                               return "*Required";
                             }
                             return null;
@@ -448,7 +444,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
                                   selectedWorkflow == null)
                               ? null
                               : () {
-                                  addNewRequest();
+                                  editRequest(context);
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,

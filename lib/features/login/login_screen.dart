@@ -160,7 +160,8 @@ class _LoginScreenState extends State<LoginScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => ApproverScreen(),
+            builder: (context) =>
+                ApproverScreen(emailId: snapshot.docs[0].data()['email']),
           ),
         );
       } else if (snapshot.docs[0].data()['role'] == "Requester") {
@@ -181,12 +182,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future emailLogin(String email, String password) async {
     try {
       final FirebaseAuth _auth = FirebaseAuth.instance;
-      UserCredential result = await _auth.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
         email: "requester@gmail.com", // email,
         password: "123456", //password,
       );
-      // User? user = result.user;
-      // return _userFromFirebaseUser(user);
 
       route();
     } catch (ex) {

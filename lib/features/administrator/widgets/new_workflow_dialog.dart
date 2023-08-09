@@ -57,17 +57,15 @@ class _NewWorkflowDialogState extends State<NewWorkflowDialog> {
       isLoading = true;
     });
 
-    CollectionReference ref =
-        FirebaseFirestore.instance.collection('workflows');
-    ref
-        .add({
-          'name': nameController.text,
-          'approvers': selectedApprovers,
-          'approvalTypes': selectedApprovalTypes,
-          'status': 'Pending',
-        })
-        .then((value) => print("Workflow Added"))
-        .catchError((error) => print("Failed to add workflow: $error"));
+    DocumentReference documentReference =
+        await FirebaseFirestore.instance.collection('workflows').add({
+      'name': nameController.text,
+      'approvers': selectedApprovers,
+      'approvalTypes': selectedApprovalTypes,
+      'status': 'Pending',
+    });
+
+    documentReference.update({'id': documentReference.id});
     setState(() {
       isLoading = false;
       nameController.clear();
