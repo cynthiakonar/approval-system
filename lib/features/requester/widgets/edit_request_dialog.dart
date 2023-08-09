@@ -85,6 +85,8 @@ class _EditRequestDialogState extends State<EditRequestDialog> {
   }
 
   Future getAvailableWorkflows() async {
+    workflows.clear();
+    workflowNames.clear();
     await FirebaseFirestore.instance
         .collection('workflows')
         .where('status', isEqualTo: 'Pending')
@@ -95,6 +97,11 @@ class _EditRequestDialogState extends State<EditRequestDialog> {
                 workflowNames.add(doc['name']);
               }),
             });
+    workflows.add({
+      'id': widget.request['workflowId'],
+      'approvers': widget.request['workflowApprovers']
+    });
+    workflowNames.add(widget.request['workflowType']);
     setState(() {});
     print(workflows);
   }
