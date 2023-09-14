@@ -14,10 +14,10 @@ Login:
 Admin:
 
  ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/3b54b2d0-de2e-4c38-b784-156e4f224036)
+ 
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/ab31702a-5120-4bdf-8a55-46cc8570592b)
 
  ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/175b9198-3ee7-4ca8-a517-7d3344d90ac0)
-
- ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/ab31702a-5120-4bdf-8a55-46cc8570592b)
 
 Requester:
 
