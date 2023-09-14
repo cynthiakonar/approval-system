@@ -7,9 +7,32 @@ Welcome to the Request Approval System repository! This project is built using F
 - The Request Approval System is hosted on GitHub Pages. You can access the live demo [here](https://cynthiakonar.github.io/#/).
 - To see the Request Approval System in action, check out our [YouTube demo video](https://youtu.be/mb6_dcK6RAc).
 
-  ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/25a58ec0-05df-4e4c-b523-866ce6d8037f)
+Login:
 
-<br><br>
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/25a58ec0-05df-4e4c-b523-866ce6d8037f)
+
+Admin:
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/3b54b2d0-de2e-4c38-b784-156e4f224036)
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/175b9198-3ee7-4ca8-a517-7d3344d90ac0)
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/ab31702a-5120-4bdf-8a55-46cc8570592b)
+
+Requester:
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/af6cc4e6-bfbe-44d5-a196-662031ea14e0)
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/469aef98-67ed-435f-960b-227351b6784f)
+
+Approver:
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/f0b81b09-e93c-4bce-b4e2-4df19394b0ea)
+
+ ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/7bb07783-ffae-4ff5-a2a5-d8da91befd9d)
+
+
+<br>
 
 ## Features
 
