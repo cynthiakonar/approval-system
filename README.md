@@ -7,6 +7,10 @@ Welcome to the Request Approval System repository! This project is built using F
 - The Request Approval System is hosted on GitHub Pages. You can access the live demo [here](https://cynthiakonar.github.io/#/).
 - To see the Request Approval System in action, check out our [YouTube demo video](https://youtu.be/mb6_dcK6RAc).
 
+  ![image](https://github.com/cynthiakonar/approval-system/assets/89989829/25a58ec0-05df-4e4c-b523-866ce6d8037f)
+
+<br><br>
+
 ## Features
 
 - User Authentication: The system supports user authentication, ensuring that only authorized users can access and interact with the approval process.
