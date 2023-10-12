@@ -56,7 +56,7 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
   }
 
   Future<String> uploadFile() async {
-    String imageUrl = '';
+    String dataUrl = '';
     try {
       firabase_storage.UploadTask uploadTask;
 
@@ -64,18 +64,18 @@ class _NewRequestDialogState extends State<NewRequestDialog> {
           .ref()
           .child('files/${selectedFile!}');
 
-      final metadata =
-          firabase_storage.SettableMetadata(contentType: 'image/jpeg');
+      final metadata = firabase_storage.SettableMetadata(
+          contentType: 'image/jpeg, application/pdf');
 
       //uploadTask = ref.putFile(File(file.path));
       uploadTask = ref.putData(fileinBytes!, metadata);
 
       await uploadTask.whenComplete(() => null);
-      imageUrl = await ref.getDownloadURL();
+      dataUrl = await ref.getDownloadURL();
     } catch (e) {
       print(e);
     }
-    return imageUrl;
+    return dataUrl;
   }
 
   Future getAvailableWorkflows() async {
