@@ -1,16 +1,12 @@
 // ignore_for_file: avoid_print, no_leading_underscores_for_local_identifiers
 
 import 'dart:html';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:path_provider/path_provider.dart';
 import '../../../../utils/constants.dart';
 import 'edit_request_dialog.dart';
-import 'package:http/http.dart' as http;
 
 class RequestHistory extends StatefulWidget {
   RequestHistory({
@@ -102,7 +98,7 @@ class _RequestHistoryState extends State<RequestHistory> {
                   label: Text("Status"),
                 ),
                 DataColumn(
-                  label: Text(""),
+                  label: Text("Document"),
                 ),
                 DataColumn(
                   label: Text(""),

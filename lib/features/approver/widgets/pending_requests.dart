@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +58,25 @@ class _PendingRequestsState extends State<PendingRequests> {
     Navigator.pop(context);
   }
 
+
+  void downloadTHEFile(request) {
+    // Create a hidden anchor tag with the download URL.
+
+    Uri uri = Uri.parse(request["attachmentUrl"]);
+
+    // Get the path from the URL
+    String path = uri.path;
+
+    // Extract the filename from the path
+    String filename = path.split('/').last;
+
+    final anchor = AnchorElement(href: request["attachmentUrl"])
+      ..target = 'download'
+      ..download = filename
+      ..click();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -85,6 +106,9 @@ class _PendingRequestsState extends State<PendingRequests> {
                 ),
                 DataColumn(
                   label: Text("Date-Time"),
+                ),
+                 DataColumn(
+                  label: Text("Document"),
                 ),
                 DataColumn(
                   label: Text(""),
@@ -354,7 +378,7 @@ class _PendingRequestsState extends State<PendingRequests> {
   DataRow recentFileDataRow(context, request) {
     return DataRow(
       cells: [
-        DataCell(
+     DataCell(
           Row(
             children: [
               request["attachmentUrl"].isEmpty
@@ -363,26 +387,23 @@ class _PendingRequestsState extends State<PendingRequests> {
                       height: 30,
                       width: 30,
                     )
-                  : CachedNetworkImage(
-                      fit: BoxFit.cover,
-                      imageUrl: request["attachmentUrl"],
-                      imageBuilder: (context, imageProvider) => Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          image: DecorationImage(
-                              image: imageProvider, fit: BoxFit.cover),
-                          gradient: const LinearGradient(colors: [
-                            Colors.transparent,
-                            Colors.black,
-                            Colors.black,
-                            Colors.black,
-                          ]),
+                  : SizedBox(
+                      height: 30,
+                      width: 30,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: CachedNetworkImage(
+                          fit: BoxFit.fitHeight,
+                          imageUrl: request["attachmentUrl"],
+                          height: 30,
+                          width: 30,
+                          placeholder: (context, url) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => const Center(
+                            child: Icon(Icons.broken_image_outlined),
+                          ),
                         ),
                       ),
-                      placeholder: (context, url) =>
-                          const Center(child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => const Center(
-                          child: Icon(Icons.broken_image_outlined)),
                     ),
               Expanded(
                 child: Padding(
@@ -394,10 +415,19 @@ class _PendingRequestsState extends State<PendingRequests> {
             ],
           ),
         ),
-        DataCell(Text(request["workflowType"])),
+           DataCell(Text(request["workflowType"])),
         DataCell(Text(DateFormat('MM/dd/yyyy, hh:mm a')
             .format(request["dateTime"].toDate())
             .toString())),
+              request["attachmentUrl"].isNotEmpty
+            ? DataCell(
+                InkWell(
+                    onTap: () async {
+                      downloadTHEFile(request);
+                    },
+                    child: const Icon(Icons.downloading_rounded)),
+              )
+            : const DataCell(Text("")),
         DataCell(
           InkWell(
             onTap: () {
